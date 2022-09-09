@@ -20,6 +20,7 @@ export interface OverflowMenuProps extends React.HTMLProps<HTMLDivElement> {
 export interface OverflowMenuState extends React.HTMLProps<HTMLDivElement> {
   isBelowBreakpoint: boolean;
   breakpointRef: HTMLElement;
+  overflowMenuWidth: number;
 }
 
 export class OverflowMenu extends React.Component<OverflowMenuProps, OverflowMenuState> {
@@ -28,33 +29,33 @@ export class OverflowMenu extends React.Component<OverflowMenuProps, OverflowMen
     super(props);
     this.state = {
       isBelowBreakpoint: false,
-      breakpointRef: null
+      breakpointRef: undefined,
+      overflowMenuWidth: 0
     };
   }
 
+  overflowMenuRef = React.createRef<HTMLDivElement>();
   observer: any = () => {};
 
   getBreakpointRef() {
     const { breakpointReference } = this.props;
-    if (breakpointReference) {
-      if ((breakpointReference as React.RefObject<any>).current) {
-        return (breakpointReference as React.RefObject<any>).current;
-      } else if (typeof breakpointReference === 'function') {
-        return breakpointReference();
-      }
+    if ((breakpointReference as React.RefObject<any>).current) {
+      return (breakpointReference as React.RefObject<any>).current;
+    } else if (typeof breakpointReference === 'function') {
+      return breakpointReference();
     }
   }
 
   componentDidMount() {
-    const reference = this.getBreakpointRef();
+    const reference = this.props.breakpointReference ? this.getBreakpointRef() : undefined;
 
-    this.setState({ breakpointRef: reference });
+    this.setState({ breakpointRef: reference, overflowMenuWidth: this.overflowMenuRef.current.clientWidth });
     this.observer = getResizeObserver(reference, debounce(this.handleResize, 250));
     this.handleResize();
   }
 
   componentDidUpdate(prevProps: Readonly<OverflowMenuProps>, prevState: Readonly<OverflowMenuState>): void {
-    const reference = this.getBreakpointRef();
+    const reference = this.props.breakpointReference ? this.getBreakpointRef() : undefined;
 
     if (prevState.breakpointRef !== reference) {
       // To remove any previous observer/event listener from componentDidMount before adding a new one
@@ -70,14 +71,24 @@ export class OverflowMenu extends React.Component<OverflowMenuProps, OverflowMen
   }
 
   handleResize = () => {
-    const breakpointWidth = globalWidthBreakpoints[this.props.breakpoint];
+    const breakpointWidth = this.state.breakpointRef
+      ? this.state.overflowMenuWidth
+      : globalWidthBreakpoints[this.props.breakpoint];
     if (!breakpointWidth) {
       // eslint-disable-next-line no-console
       console.error('OverflowMenu will not be visible without a valid breakpoint.');
       return;
     }
 
-    const relativeWidth = this.state.breakpointRef ? this.state.breakpointRef.clientWidth : window.innerWidth;
+    const computed =
+      this.state.breakpointRef &&
+      getComputedStyle(this.state.breakpointRef).paddingLeft +
+        getComputedStyle(this.state.breakpointRef).borderRight +
+        getComputedStyle(this.state.breakpointRef).borderLeft +
+        getComputedStyle(this.state.breakpointRef).paddingRight;
+    const relativeWidth = this.state.breakpointRef
+      ? this.state.breakpointRef.clientWidth - parseFloat(computed)
+      : window.innerWidth;
     const isBelowBreakpoint = relativeWidth < breakpointWidth;
     if (this.state.isBelowBreakpoint !== isBelowBreakpoint) {
       this.setState({ isBelowBreakpoint });
@@ -89,7 +100,7 @@ export class OverflowMenu extends React.Component<OverflowMenuProps, OverflowMen
     const { className, breakpoint, children, breakpointReference, ...props } = this.props;
 
     return (
-      <div {...props} className={css(styles.overflowMenu, className)}>
+      <div ref={this.overflowMenuRef} {...props} className={css(styles.overflowMenu, className)}>
         <OverflowMenuContext.Provider value={{ isBelowBreakpoint: this.state.isBelowBreakpoint }}>
           {children}
         </OverflowMenuContext.Provider>
