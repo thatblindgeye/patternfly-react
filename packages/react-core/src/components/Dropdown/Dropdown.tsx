@@ -77,7 +77,7 @@ export const Dropdown: React.FunctionComponent<DropdownProps> = ({
   alignments,
   contextProps,
   menuAppendTo = 'inline',
-  isFlipEnabled = true,
+  isFlipEnabled = null,
   removeFindDomNode = false,
   ...props
 }: DropdownProps) => (
