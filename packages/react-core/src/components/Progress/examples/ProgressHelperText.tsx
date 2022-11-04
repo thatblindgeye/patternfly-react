@@ -1,5 +1,5 @@
 import React from 'react';
-import { Progress, ProgressProps, Radio } from '@patternfly/react-core';
+import { Progress, ProgressProps, Radio, Text, HelperText, HelperTextItem } from '@patternfly/react-core';
 
 export const ProgressHelperText: React.FunctionComponent = () => {
   type ProgressVariant = ProgressProps['variant'];
@@ -32,7 +32,30 @@ export const ProgressHelperText: React.FunctionComponent = () => {
       <Progress
         value={33}
         title="Title"
-        helperText={`${selectedVariant ? selectedVariant : 'default'} variant is being displayed`}
+        helperText={
+          <Text>
+            Other elements/components passed in{' '}
+            <div>as helper text will render basic helper text with class "basic-helper-progress"</div>
+          </Text>
+        }
+        variant={selectedVariant}
+      />
+      <Progress
+        value={33}
+        title="Title"
+        helperText={'Just a string for helper text will render basic helper text with class "basic-helper-progress"'}
+        variant={selectedVariant}
+      />
+      <Progress
+        value={33}
+        title="Title"
+        helperText={
+          <HelperText>
+            <HelperTextItem>
+              Passing HelperText component will render custom helper text without class "basic-helper-progress"
+            </HelperTextItem>
+          </HelperText>
+        }
         variant={selectedVariant}
       />
     </>

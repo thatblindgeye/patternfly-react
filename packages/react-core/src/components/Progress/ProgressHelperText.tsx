@@ -26,17 +26,19 @@ export const ProgressHelperText: React.FunctionComponent<ProgressHelperTextProps
     danger: 'error'
   };
 
-  const helperTextIsBasic = typeof children === 'string';
+  const firstChild = React.Children.toArray(children)[0];
+  const isCustomHelperText =
+    React.isValidElement(firstChild) && typeof firstChild.type !== 'string' && firstChild.type.name === 'HelperText';
 
   const basicHelperText = (
-    <HelperText>
+    <HelperText className="basic-helper-progress">
       <HelperTextItem variant={helperTextVariantMapping[progressVariant]}>{children}</HelperTextItem>
     </HelperText>
   );
 
   return (
     <div className={progressStyle.progressHelperText} {...props}>
-      {helperTextIsBasic ? basicHelperText : children}
+      {isCustomHelperText ? children : basicHelperText}
     </div>
   );
 };
