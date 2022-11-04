@@ -1,5 +1,5 @@
 import React from 'react';
-import { Progress, ProgressProps, Radio, Text, HelperText, HelperTextItem } from '@patternfly/react-core';
+import { Progress, ProgressProps, Radio, HelperText, HelperTextItem, Truncate } from '@patternfly/react-core';
 
 export const ProgressHelperText: React.FunctionComponent = () => {
   type ProgressVariant = ProgressProps['variant'];
@@ -33,10 +33,7 @@ export const ProgressHelperText: React.FunctionComponent = () => {
         value={33}
         title="Title"
         helperText={
-          <Text>
-            Other elements/components passed in{' '}
-            <div>as helper text will render basic helper text with class "basic-helper-progress"</div>
-          </Text>
+          <Truncate content="Error: a really long error message whch should be truncated at some point a really long error message whch should be truncated at some point" />
         }
         variant={selectedVariant}
       />
